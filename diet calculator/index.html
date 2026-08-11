@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Fitness Utility Calculator</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #24272c;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      color: #e0e0e0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .card {
+      width: 100%;
+      max-width: 400px;
+      background: #24272c;
+      padding: 25px;
+      border-radius: 25px;
+      box-shadow: 10px 10px 20px #1b1d20, -10px -10px 20px #2d3138;
+    }
+    h2 {
+      text-align: center;
+      color: #00e5ff;
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      letter-spacing: 1px;
+    }
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+    .tab-btn {
+      flex: 1; padding: 12px; border: none; border-radius: 12px;
+      background: #24272c; color: #888; font-weight: bold; cursor: pointer;
+      box-shadow: 4px 4px 8px #1b1d20, -4px -4px 8px #2d3138;
+    }
+    .tab-btn.active {
+      color: #00e5ff;
+      box-shadow: inset 3px 3px 6px #1b1d20, inset -3px -3px 6px #2d3138;
+    }
+    .input-box { margin-bottom: 15px; display: flex; flex-direction: column; gap: 8px; }
+    label { font-size: 0.9rem; }
+    input[type="range"] {
+      appearance: none; width: 100%; height: 8px; border-radius: 5px;
+      background: #24272c; outline: none;
+      box-shadow: inset 2px 2px 5px #1b1d20, inset -2px -2px 5px #2d3138;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none; width: 20px; height: 20px; border-radius: 50%;
+      background: #00e5ff; cursor: pointer;
+    }
+    .gender { display: flex; gap: 10px; margin-bottom: 20px; }
+    .g-btn {
+      flex: 1; padding: 8px; border: none; border-radius: 10px;
+      background: #24272c; color: #aaa; cursor: pointer;
+      box-shadow: 3px 3px 6px #1b1d20, -3px -3px 6px #2d3138;
+    }
+    .g-btn.selected { color: #fff; box-shadow: inset 2px 2px 4px #1b1d20; background: #333; }
+    .display {
+      background: #24272c; padding: 20px; border-radius: 15px; text-align: center;
+      box-shadow: inset 5px 5px 10px #1b1d20, inset -5px -5px 10px #2d3138;
+    }
+    .display h1 { font-size: 2.5rem; margin: 10px 0; }
+    .status { padding: 4px 12px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; }
+    .macro-grid { display: flex; gap: 8px; margin-top: 15px; }
+    .macro-card {
+      flex: 1; padding: 10px 5px; text-align: center; border-radius: 10px;
+      box-shadow: 3px 3px 6px #1b1d20, -3px -3px 6px #2d3138;
+    }
+    .macro-card span { display: block; }
+    .m-val { font-weight: bold; color: #00e5ff; }
+    .m-lbl { font-size: 0.7rem; color: #888; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>FITNESS 3D CALCULATOR</h2>
+
+    <div class="tabs">
+      <button class="tab-btn active" id="tab1">BMI Score</button>
+      <button class="tab-btn" id="tab2">Calories & Macros</button>
+    </div>
+
+    <div class="input-box">
+      <label id="lbl-w">Weight: 70 kg</label>
+      <input type="range" id="inp-w" min="30" max="150" value="70">
+    </div>
+
+    <div class="input-box">
+      <label id="lbl-h">Height: 175 cm</label>
+      <input type="range" id="inp-h" min="120" max="220" value="175">
+    </div>
+
+    <div class="input-box">
+      <label id="lbl-a">Age: 25 yrs</label>
+      <input type="range" id="inp-a" min="12" max="80" value="25">
+    </div>
+
+    <div class="gender">
+      <button class="g-btn selected" id="g-male">Male</button>
+      <button class="g-btn" id="g-female">Female</button>
+    </div>
+
+    <div class="results">
+      <div id="view-bmi" class="display">
+        <span style="font-size: 0.8rem; color:#888;">BODY MASS INDEX</span>
+        <h1 id="bmi-val">22.9</h1>
+        <span class="status" id="bmi-status" style="background:#10b981;">Normal Weight</span>
+      </div>
+
+      <div id="view-cal" class="hidden">
+        <div class="display">
+          <span style="font-size: 0.8rem; color:#888;">DAILY CALORIES</span>
+          <h1><span id="cal-val">2300</span> <small style="font-size: 1rem;">kcal</small></h1>
+        </div>
+        <div class="macro-grid">
+          <div class="macro-card"><span class="m-val" id="m-p">173g</span><span class="m-lbl">Protein</span></div>
+          <div class="macro-card"><span class="m-val" id="m-c">230g</span><span class="m-lbl">Carbs</span></div>
+          <div class="macro-card"><span class="m-val" id="m-f">77g</span><span class="m-lbl">Fats</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let gender = 'male';
+
+    function playSound(freq = 600) {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        g.gain.setValueAtTime(0.08, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+        osc.connect(g); g.connect(ctx.destination);
+        osc.start(); osc.stop(ctx.currentTime + 0.08);
+      } catch(e){}
+    }
+
+    function calc() {
+      const w = Number(document.getElementById('inp-w').value);
+      const h = Number(document.getElementById('inp-h').value);
+      const a = Number(document.getElementById('inp-a').value);
+
+      document.getElementById('lbl-w').innerText = `Weight: ${w} kg`;
+      document.getElementById('lbl-h').innerText = `Height: ${h} cm`;
+      document.getElementById('lbl-a').innerText = `Age: ${a} yrs`;
+
+      const hM = h / 100;
+      const bmi = (w / (hM * hM)).toFixed(1);
+      document.getElementById('bmi-val').innerText = bmi;
+
+      let st = '', col = '';
+      if (bmi < 18.5) { st = 'Underweight'; col = '#3b82f6'; }
+      else if (bmi < 25) { st = 'Normal Weight'; col = '#10b981'; }
+      else if (bmi < 30) { st = 'Overweight'; col = '#f59e0b'; }
+      else { st = 'Obese'; col = '#ef4444'; }
+
+      const stEl = document.getElementById('bmi-status');
+      stEl.innerText = st; stEl.style.background = col;
+      document.getElementById('bmi-val').style.color = col;
+
+      let bmr = (10 * w) + (6.25 * h) - (5 * a);
+      bmr = gender === 'male' ? bmr + 5 : bmr - 161;
+      const tdee = Math.round(bmr * 1.375);
+
+      document.getElementById('cal-val').innerText = tdee;
+      document.getElementById('m-p').innerText = Math.round((tdee * 0.3) / 4) + 'g';
+      document.getElementById('m-c').innerText = Math.round((tdee * 0.4) / 4) + 'g';
+      document.getElementById('m-f').innerText = Math.round((tdee * 0.3) / 9) + 'g';
+    }
+
+    ['inp-w', 'inp-h', 'inp-a'].forEach(id => {
+      document.getElementById(id).addEventListener('input', () => { playSound(800); calc(); });
+    });
+
+    document.getElementById('tab1').addEventListener('click', () => {
+      playSound(500);
+      document.getElementById('tab1').classList.add('active');
+      document.getElementById('tab2').classList.remove('active');
+      document.getElementById('view-bmi').classList.remove('hidden');
+      document.getElementById('view-cal').classList.add('hidden');
+    });
+
+    document.getElementById('tab2').addEventListener('click', () => {
+      playSound(650);
+      document.getElementById('tab2').classList.add('active');
+      document.getElementById('tab1').classList.remove('active');
+      document.getElementById('view-cal').classList.remove('hidden');
+      document.getElementById('view-bmi').classList.add('hidden');
+    });
+
+    document.getElementById('g-male').addEventListener('click', () => {
+      playSound(700); gender = 'male';
+      document.getElementById('g-male').classList.add('selected');
+      document.getElementById('g-female').classList.remove('selected');
+      calc();
+    });
+
+    document.getElementById('g-female').addEventListener('click', () => {
+      playSound(700); gender = 'female';
+      document.getElementById('g-female').classList.add('selected');
+      document.getElementById('g-male').classList.remove('selected');
+      calc();
+    });
+
+    calc();
+  </script>
+</body>
+</html>
